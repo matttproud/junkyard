@@ -153,7 +153,7 @@ func (m *transactionManager) reconcileAccount() bool {
 
 So far the examples we have provided have given the program meagre ability to provide custom behavior based on the error circumstances.
 We are going to take this further.  In this example we will compute a ledger for accounts at month close.  The code in question assumes the purchase records have been stored in various
-database shards (all numeric).  Let's assume that the computation requires the databases to be a groomed state before performing the important queries, but grooming is very expensive, so
+database shards (all numeric).  Let's assume that the computation requires the databases to be in a groomed state before performing the important queries, but grooming is very expensive, so
 we do not want to arbitrarily do it.  In this case, we assume that `GroomException` and `GroomError` include information that the caller can use to determine what went wrong and programmatically
 act accordingly.
 
