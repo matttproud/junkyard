@@ -452,3 +452,4 @@ With these specific APIs, numerous input precondition validation can be removed.
 
 ### When to Panic
 
+Just don't for now.  If in doubt, find an expert practitioner of Go to discuss the matter.
