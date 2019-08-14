@@ -20,15 +20,14 @@ void compute(Argument arg) {
   }
   // Rest omitted.
 }
-
 ```
 
 ```go
 func Compute(arg Argument) error {
-  if !arg.valid() {
-    return fmt.Errorf("arg is invalid.")
-  }
-  // Rest omitted.
+	if !arg.valid() {
+		return fmt.Errorf("arg is invalid.")
+	}
+	// Rest omitted.
 }
 ```
 
@@ -54,37 +53,39 @@ void debitAccount(Integer accountId, Integer amount) throws AuthorizationExcepti
 }
 
 class AuthorizationException extends Exception {
+
   private Integer agentId;
   private Integer accountId;
   private String operation;
-  
+
   AuthorizationException(Integer agentId, Integer accountId, String operation) {
     this.agentId = agentId;
-	this.accountId = accountId;
-	this.operation = operation;
+    this.accountId = accountId;
+    this.operation = operation;
   }
-  
+
   public String toString() {
-    return "AuthorizationException(" + agentId + " is not authorized to " + opertation + " account" + accountId;
+    return "AuthorizationException(" + agentId + " is not authorized to " + opertation
+        + " account" + accountId;
   }
 }
 ```
 
 ```go
 func debitAccount(agentId, accountId, amount int) error {
-  if !isDebitAuthorized(agentId, accountId) {
-    return &AuthorizationError{agentId: agentId, accountId: accountId, operation: "debit"}
-  }
-  // Rest omitted.
+	if !isDebitAuthorized(agentId, accountId) {
+		return &AuthorizationError{agentId: agentId, accountId: accountId, operation: "debit"}
+	}
+	// Rest omitted.
 }
 
 type AuthorizationError struct {
-  agentId, accountId int
-  operation string
+	agentId, accountId int
+	operation          string
 }
 
 func (err *AuthorizationError) Error() string {
-  return fmt.Sprintf("%v is not authorized to %v %v", err.agentId, err.accountId, err.operation)
+	return fmt.Sprintf("%v is not authorized to %v %v", err.agentId, err.accountId, err.operation)
 }
 ```
 
@@ -106,15 +107,15 @@ boolean reconcileAccount() {
 
 ```go
 func (m *transactionManager) reconcileAccount() bool {
-  err := debitAccount(m.agentId, m.accountId, m.amount)
-  switch err.(type) {
-    case *AuthorizationError:
+	err := debitAccount(m.agentId, m.accountId, m.amount)
+	switch err.(type) {
+	case *AuthorizationError:
 	case nil:
-	  return true
+		return true
 	default:
-	  m.pageOncall(err)
-  }
-  return false
+		m.pageOncall(err)
+	}
+	return false
 }
 ```
 
@@ -130,22 +131,22 @@ not need this information, even for reporting.  Potentially using error sentinel
 var ErrNotAuthorized = errors.New("not authorized")
 
 func debitAccount(agentId, accountId, amount integer) error {
-  if !isDebitAuthorized(agentId, accountId) {
-    return ErrNotAuthorized
-  }
-  // Rest omitted.
+	if !isDebitAuthorized(agentId, accountId) {
+		return ErrNotAuthorized
+	}
+	// Rest omitted.
 }
 
 func (m *transactionManager) reconcileAccount() bool {
-  err := debitAccount(m.agentId, m.accountId, m.amount)
-  switch err {
-    case ErrNotAuthorized:
+	err := debitAccount(m.agentId, m.accountId, m.amount)
+	switch err {
+	case ErrNotAuthorized:
 	case nil:
-	  return true
+		return true
 	default:
-	  m.pageOncall(err)
-  }
-  return false
+		m.pageOncall(err)
+	}
+	return false
 }
 ```
 
@@ -166,25 +167,25 @@ Ledger computeMonthClose(Integer accountId) {
     try {
       memo.addTransactions(loadRecords(accountId, shardId));
     } catch (GroomException ex) {
-	  toGroom.add(ex);
-	} catch (Exception ex) {
-	  pageOncall(ex);
-	  return Ledger.empty();  // Better to return nothing than something incorrect.
-	}
+      toGroom.add(ex);
+    } catch (Exception ex) {
+      pageOncall(ex);
+      return Ledger.empty();  // Better to return nothing than something incorrect.
+    }
   }
-  
+
   // Retry
-  
+
   for (GroomException pending : toGroom) {
     performGroom(pending.getDatabasePath());
-	try {
-	  memo.addTransactions(loadRecords(accountId, pending.getShardId()));
+    try {
+      memo.addTransactions(loadRecords(accountId, pending.getShardId()));
     } catch (GroomException ex) {
-	  // Can't happen, but it is a checked exception.
-	} catch (Exception ex) {
-	  pageOncall(ex);
-	  return Ledger.empty();  // Better to return nothing than something incorrect.
-	}
+      // Can't happen, but it is a checked exception.
+    } catch (Exception ex) {
+      pageOncall(ex);
+      return Ledger.empty();  // Better to return nothing than something incorrect.
+    }
   }
 
   return memo.build();
@@ -199,18 +200,19 @@ Transaction loadRecords(Integer accountId, shardId) throws GroomException {
 }
 
 class GroomException extends Exception {
+
   private String databasePath;
   private Integer shardId;
-  
+
   GroomException(String databasePath, Integer shardId) {
     this.databasePath = databasePath;
-	this.shardId = shardId;
+    this.shardId = shardId;
   }
-  
+
   String getDatabasePath() {
     return databasePath;
   }
-  
+
   Integer getShardId() {
     return shardId;
   }
@@ -219,50 +221,52 @@ class GroomException extends Exception {
 
 ```go
 func (r *AccountRecords) computeMonthClose(accountId int) *Ledger {
-  var out Ledger
-  shardIds := r.databaseShards(accountId)
-  var toGroom []*GroomError
-  for shardId := range shardIds {
-    records, err := r.loadRecords(accountId, shardId)
-	switch err.(type) {
-  	case nil:
-	  out.merge(records)
-	case *GroomError:
-	  toGroom = append(toGroom, err)
-	default:
-	  r.pageOncall(err)
-	  return nil // Better to return nothing than something incorrect.
+	var out Ledger
+	shardIds := r.databaseShards(accountId)
+	var toGroom []*GroomError
+	for shardId := range shardIds {
+		records, err := r.loadRecords(accountId, shardId)
+		switch err.(type) {
+		case nil:
+			out.merge(records)
+		case *GroomError:
+			toGroom = append(toGroom, err)
+		default:
+			r.pageOncall(err)
+			return nil // Better to return nothing than something incorrect.
+		}
 	}
-  }
-  
-  // Retry
-  
-  for _, pending := range toGroom {
-    r.performGroom(pending.DBPath)
-	records, err := r.loadRecords(accountId, shardId)
-	if err != nil {
-	  r.pageOncall(err)
-	  return nil // Better to return nothing than something incorrect.
+
+	// Retry
+
+	for _, pending := range toGroom {
+		r.performGroom(pending.DBPath)
+		records, err := r.loadRecords(accountId, shardId)
+		if err != nil {
+			r.pageOncall(err)
+			return nil // Better to return nothing than something incorrect.
+		}
+		out.merge(records)
 	}
-	out.merge(records)
-  }
-  return &out
+	return &out
 }
 
 func (r *AccountRecords) loadRecords(accountId, shardId int) (*Transaction, error) {
-  dbPath := r.databasePath(accountId, shardId)
-  if (r.dataState(databasePath) != Groomed) {
-    return nil, &GroomError{DBPath: dbPath, ShardId: shardId}
-  }
-  // Rest omitted.
+	dbPath := r.databasePath(accountId, shardId)
+	if r.dataState(databasePath) != Groomed {
+		return nil, &GroomError{DBPath: dbPath, ShardId: shardId}
+	}
+	// Rest omitted.
 }
 
-type GroomError struct{
-  DBPath string
-  ShardId int
+type GroomError struct {
+	DBPath  string
+	ShardId int
 }
 
-func (err *GroomError) Error() string { return fmt.Sprintf("DBPath %q for ShardID %v requires grooming.", err.DBPath, err.ShardID) }
+func (err *GroomError) Error() string {
+	return fmt.Sprintf("DBPath %q for ShardID %v requires grooming.", err.DBPath, err.ShardID)
+}
 ```
 
 While the examples are contrived, they do demonstrate that there is a significant correspondence between structured error handling in Java and Go.
@@ -270,11 +274,11 @@ Go makes authoring structured error types a breeze.  Consider:
 
 ```go
 type CycleError struct {
-  Path []Node
+	Path []Node
 }
 
 func (err *CycleError) Error() string {
-  // Rest omitted.
+	// Rest omitted.
 }
 ```
 
@@ -326,39 +330,39 @@ package auditlog
 
 // AuthorizationError describes a failure case in which the user is not
 // permitted to perform an operation.
-type AuthorizationError struct{
-  Operation string
+type AuthorizationError struct {
+	Operation string
 }
 
 func (err *AuthorizationError) Error() string {
-  return fmt.Sprintf("auditlog: %v is not permitted", err.Operation)
+	return fmt.Sprintf("auditlog: %v is not permitted", err.Operation)
 }
 
 // Purge clears the audit log. It returns an *AuthorizationError if the call
 // is not permitted.
 func Purge() error {
-  if unauthorized {
-    return &AuthorizationError{"Purge"}
-  }
-  // Rest omitted.
+	if unauthorized {
+		return &AuthorizationError{"Purge"}
+	}
+	// Rest omitted.
 }
 
 // Pause stops audit logging. It returns an *AuthorizationError if the call
 // is not permitted.
 func Pause() error {
-  if unauthorized {
-    return &AuthorizationError{"Pause"}
-  }
-  // Rest omitted.
+	if unauthorized {
+		return &AuthorizationError{"Pause"}
+	}
+	// Rest omitted.
 }
 
 // Resume starts audit logging. It returns an *AuthorizationError if the call
 // is not permitted.
 func Resume() error {
-  if unauthorized {
-    return &AuthorizationError{"Resume"}
-  }
-  // Rest omitted.
+	if unauthorized {
+		return &AuthorizationError{"Resume"}
+	}
+	// Rest omitted.
 }
 ```
 
@@ -401,17 +405,19 @@ example:
 
 ```java
 class Auditor {
+
   // Disable user instantiation.
-  private Auditor() {}
+  private Auditor() {
+  }
 
   public void record(String userName, String operation) { /* rest omitted */ }
-  
+
   // Creates an Auditor that emits to the provided stream.
   public static Auditor onStream(OutputStream stream) { /* rest omitted */ }
-  
+
   // Creates an Auditor that does nothing.
   public static Auditor noop() { /* rest omitted */ }
-  
+
   // Creates an Auditor that emits records to the usual location.
   public static Auditor newDefault() { /* rest omitted */ }
 }
@@ -420,7 +426,7 @@ class Auditor {
 ```go
 package auditor
 
-type Auditor struct{ /* rest omitted */ }
+type Auditor struct { /* rest omitted */ }
 
 func (auditor *Auditor) Record(userName, operation string) { /* rest omitted */ }
 
