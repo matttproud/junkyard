@@ -320,7 +320,7 @@ package sensitive
 // not permitted to perform the action.
 func PerformSensitiveAction() error { /* omitted */}
 
-var UnauthorizedErr = errors.New("sensitive: the user is not authorized.")
+var UnauthorizedErr = errors.New("sensitive: the user is not authorized")
 ```
 
 With an error type:
